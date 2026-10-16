@@ -7,8 +7,16 @@
         {
           "title": "Mortal Kombat 11 Ultimate",
           "publisher": "",
+          "version": "01.00",
+          "size": 52428800,
+          "cover": "covers/ornek.png",
+          "pkg": "https://download.akirabox.com/uploads/users/1k0embVVmVb4/coOgp067kWGwfCZMZde-BASE%20-%20CUSA11518%20-%20%5BDLPSGAME.COM%5D.pkg?access=1792200496513.SbVq0zFNdi2X3m5g6AT1VI1DpV7T7Kp6j5KA5Rd266w",
           "description": "Ana Oyun",
-          "pkg": "https://download.akirabox.com/uploads/users/1k0embVVmVb4/coOgp067kWGwfCZMZde-BASE%20-%20CUSA11518%20-%20%5BDLPSGAME.COM%5D.pkg?access=1792200496513.SbVq0zFNdi2X3m5g6AT1VI1DpV7T7Kp6j5KA5Rd266w"
+          "updates": [
+            { "title": "v1.30 Update", "pkg": "https://download.akirabox.com/uploads/users/1k0embVVmVb4/cowxy5bNhwt78slmKde-UP1018-CUSA11518_00-A0130-V0100-%5BDLPSGAME.COM%5D.pkg?access=1792200518821.jIWAYk--v673Iv1d-yqmuqsnWKGE_uFJNNfu6YlcmnY" }
+          ],
+          "dlcs": [
+            { "title": "Aftermath Story Expansion", "pkg": "https://download.akirabox.com/uploads/users/1k0embVVmVb4/coAkdHqry9R7ZK4Vyde-CUSA11518_MK11_AFTERMATH_STORY_EXPANSION_DLC_FXD-%5BDLPSGAME.COM%5D.pkg?access=1792200596131.jXuExKfpQhi94_urj7XT1T7Nq4gyxzcyOKFoQj3Sglg" }
         }
       ]
     }
