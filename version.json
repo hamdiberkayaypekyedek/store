@@ -1,7 +1,7 @@
 {
-  "version": "01.08",
+  "version": "01.09",
   "title": "PKG Mağaza",
   "size": 6750208,
-  "pkg": "https://github.com/hamdiberkayaypekyedek/store/releases/download/v01.08/PKGMagaza.pkg",
-  "notes": "- Her kare öncesinde SDL kırpma ve alfa-karışım durumu sıfırlanır.\n- Remote Play geçişlerinde kalan mavi katman/önceki kare izleri hedeflenir."
+  "pkg": "https://github.com/hamdiberkayaypekyedek/store/releases/download/v01.09/PKGMagaza.pkg",
+  "notes": "- PS4 SDL'de arayüzün üstünde kalabilen mavi gradyan dokusu kaldırıldı.\n- Arka plan, arayüzle aynı opak çizim yolunda oluşturulur."
 }

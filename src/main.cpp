@@ -119,7 +119,6 @@ struct Pad {
 
 struct State {
     SDL_Renderer* r = nullptr;
-    SDL_Texture* bg = nullptr;
     Config cfg;
     catalog::Catalog cat;
     std::string error;
@@ -268,8 +267,21 @@ void drawCoverArt(const catalog::Item& it, int x, int y, int s) {
     else drawPlaceholder(it, x, y, s);
 }
 
+void drawBaseBackground() {
+    constexpr int bands = 24;
+    for (int i = 0; i < bands; i++) {
+        float t = (float)i / (bands - 1);
+        Color c{(uint8_t)(C::bgTop.r + (C::bgBottom.r - C::bgTop.r) * t),
+                (uint8_t)(C::bgTop.g + (C::bgBottom.g - C::bgTop.g) * t),
+                (uint8_t)(C::bgTop.b + (C::bgBottom.b - C::bgTop.b) * t), 255};
+        int y = SH * i / bands;
+        int h = SH * (i + 1) / bands - y;
+        gfx::fillRect(0, y, SW, h, c);
+    }
+}
+
 void drawBackdrop(const catalog::Item* it, uint8_t alpha) {
-    gfx::drawImage(g.bg, 0, 0, SW, SH);
+    drawBaseBackground();
     if (!it) return;
     int w = 0, h = 0;
     SDL_Texture* t = images::get(it->background.empty() ? it->cover : it->background, &w, &h);
@@ -683,14 +695,14 @@ void renderDetail() {
 }
 
 void renderLoading() {
-    gfx::drawImage(g.bg, 0, 0, SW, SH);
+    drawBaseBackground();
     gfx::text("Ma\xC4\x9F" "aza y\xC3\xBCkleniyor\xE2\x80\xA6", SW / 2, SH / 2 - 120, 40, C::white, true, 0,
               gfx::Align::Center);
     drawSpinner(SW / 2, SH / 2 + 10, 40);
 }
 
 void renderError() {
-    gfx::drawImage(g.bg, 0, 0, SW, SH);
+    drawBaseBackground();
     const int x = kGridX + 40;
     gfx::text("Katalog y\xC3\xBCklenemedi", x, 200, 58, C::white, true);
     gfx::wrapText(g.error, x, 296, 30, 1500, 42, 3, Color{255, 170, 170, 255});
@@ -888,7 +900,6 @@ int main() {
 
     if (!gfx::init(g.r, "/app0/assets/font.ttf", "/app0/assets/font-bold.ttf"))
         applog("UYARI: font yuklenemedi, metinler gorunmeyecek");
-    g.bg = gfx::verticalGradient(SH, C::bgTop, C::bgBottom);
 #ifdef USE_GOLDHEN_SDK
     // Korumali alandan cikis: /mnt/disc, /user/app ve /system_data okunabilsin
     applog("sys_sdk_jailbreak -> %d", sys_sdk_jailbreak(&g_jb));
