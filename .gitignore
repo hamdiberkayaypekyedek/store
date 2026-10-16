@@ -1,0 +1,15 @@
+﻿# Derleme ciktilari
+build/
+eboot.bin
+pkg.gp4
+*.pkg
+*.oelf
+*.elf
+sce_sys/param.sfo
+
+# Kurulum betiginin indirdikleri (kaynak kodda tutulmaz)
+include/stb_image.h
+include/stb_truetype.h
+assets/font.ttf
+assets/font-bold.ttf
+sce_sys/about/right.sprx
