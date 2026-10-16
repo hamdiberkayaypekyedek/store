@@ -75,6 +75,7 @@ jobs:
         run: |
           set -e
           pkg=$(ls *.pkg | head -1)
-          gh release create "$GITHUB_REF_NAME" "$pkg#PKGMagaza.pkg" \
+          cp "$pkg" PKGMagaza.pkg   # version.json'daki adresle ayni ad
+          gh release create "$GITHUB_REF_NAME" PKGMagaza.pkg \
             --title "PKG Mağaza $GITHUB_REF_NAME" --notes "Otomatik derleme" \
-            || gh release upload "$GITHUB_REF_NAME" "$pkg#PKGMagaza.pkg" --clobber
+            || gh release upload "$GITHUB_REF_NAME" PKGMagaza.pkg --clobber
