@@ -11,6 +11,7 @@
 
 // libSceNet fonksiyonlari (stub'lar -lSceNet ile baglanir).
 extern "C" {
+int sceSysmoduleLoadModule(uint16_t id);
 int sceNetInit(void);
 int sceNetPoolCreate(const char* name, int size, int flags);
 int sceNetResolverCreate(const char* name, int memid, int flags);
@@ -134,9 +135,11 @@ std::string dechunk(const std::string& in) {
 }  // namespace
 
 bool init() {
+    // NET sysmodule ag fonksiyonlarindan ONCE yuklenmeli, yoksa sceNetInit cokebilir.
+    int m = sceSysmoduleLoadModule(0x0009 /* ORBIS_SYSMODULE_NET */);
     int r = sceNetInit();
     g_pool = sceNetPoolCreate("pkgstore_net", 128 * 1024, 0);
-    applog("sceNetInit=0x%08X pool=%d", (unsigned)r, g_pool);
+    applog("net mod=0x%08X sceNetInit=0x%08X pool=%d", (unsigned)m, (unsigned)r, g_pool);
     return g_pool >= 0;
 }
 

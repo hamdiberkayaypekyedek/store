@@ -890,13 +890,13 @@ int main() {
     // Korumali alandan cikis: /mnt/disc, /user/app ve /system_data okunabilsin
     applog("sys_sdk_jailbreak -> %d", sys_sdk_jailbreak(&g_jb));
 #endif
+    g.pad.init(g.userId);
+    g.cfg = loadConfig();  // ag ve updater'dan ONCE: dogru adresler kullanilsin
     http::init();
     https::init();
     images::start();
     disc::start();
     updater::start(g.cfg.updateUrl);
-    g.pad.init(g.userId);
-    g.cfg = loadConfig();
     loadCatalogNow();
 
     bool running = true;

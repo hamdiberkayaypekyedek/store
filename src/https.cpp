@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <mutex>
 #include <vector>
 
 #include "log.h"
@@ -81,6 +82,12 @@ bool init() {
 }
 
 Result get(const std::string& url, int redirectsLeft) {
+    // sceHttp baglami tek; farkli thread'lerden (katalog + kapaklar + guncelleme
+    // kontrolu) ayni anda cagrilmasin diye istekleri seri hale getiriyoruz.
+    // get() yonlendirmede kendini cagirdigi icin recursive_mutex.
+    static std::recursive_mutex mtx;
+    std::lock_guard<std::recursive_mutex> lock(mtx);
+
     Result res;
     if (!g_ready && !init()) {
         res.error = "HTTPS baslatilamadi";
