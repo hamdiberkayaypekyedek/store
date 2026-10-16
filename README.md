@@ -103,13 +103,13 @@ GitHub HTTPS kullandığı için sürüm kontrolü PS4'ün kendi `libSceHttp`'si
    ```
 3. GitHub'da boş bir depo açın (Settings değil, sağ üst **+ › New repository**). Herkese açık (public) olması, PS4'ün `version.json`'a ve release pkg'sine erişebilmesi için en kolayıdır. Sonra:
    ```bash
-   git remote add origin https://github.com/KULLANICI/REPO.git
+   git remote add origin https://github.com/hamdiberkayaypekyedek/store.git
    git branch -M main
    git push -u origin main
    ```
-4. `config.ini` ve `version.json` içindeki `KULLANICI/REPO` kısmını kendi kullanıcı adınız ve depo adınızla değiştirin. `update_url` şu biçimde olmalı:
+4. `config.ini` içindeki `update_url` satırı şu adrese bakar (uygulama ilk açılışta bunu kendisi yazar):
    ```
-   update_url=https://raw.githubusercontent.com/KULLANICI/REPO/main/version.json
+   update_url=https://raw.githubusercontent.com/hamdiberkayaypekyedek/store/main/version.json
    ```
 
 ### Yeni sürüm yayınlama

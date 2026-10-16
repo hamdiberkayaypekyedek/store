@@ -161,7 +161,7 @@ Config loadConfig() {
                   "installer=auto\n"
                   "# Uygulamanin kendi guncellemesi (GitHub version.json, https).\n"
                   "# Bos birakilirsa guncelleme kapatilir.\n"
-                  "update_url=https://raw.githubusercontent.com/KULLANICI/REPO/main/version.json\n",
+                  "update_url=https://raw.githubusercontent.com/hamdiberkayaypekyedek/store/main/version.json\n",
                   f);
             fclose(f);
         }
