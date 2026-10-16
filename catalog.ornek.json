@@ -1,0 +1,25 @@
+{
+  "store_name": "Mağazam",
+  "categories": [
+    {
+      "name": "Uygulamalarım",
+      "items": [
+        {
+          "title": "Örnek Uygulama",
+          "publisher": "Ben",
+          "version": "01.00",
+          "size": 52428800,
+          "cover": "covers/ornek.png",
+          "pkg": "http://192.168.1.10:8000/ornek.pkg",
+          "description": "Bu bir örnek satır. pkg adresini kendi dosyanla değiştir.",
+          "updates": [
+            { "title": "v1.01 yama", "pkg": "http://192.168.1.10:8000/ornek-update.pkg" }
+          ],
+          "dlcs": [
+            { "title": "Ek paket", "pkg": "http://192.168.1.10:8000/ornek-dlc1.pkg" }
+          ]
+        }
+      ]
+    }
+  ]
+}
