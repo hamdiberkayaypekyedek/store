@@ -2,13 +2,13 @@
   "store_name": "Mağazam",
   "categories": [
     {
-      "name": "Başlangıç",
+      "name": "Oyun",
       "items": [
         {
-          "title": "Buraya kendi içeriğini ekle",
+          "title": "Mortal Kombat 11 Ultimate",
           "publisher": "",
-          "description": "Bu dosyayı GitHub'da düzenle: her içerik için title ve pkg (indirme adresi) yeterli. İstersen cover, updates ve dlcs ekle. Kaydettiğinde uygulamada OPTIONS'a basınca güncellenir.",
-          "pkg": "https://ornek.com/degistir.pkg"
+          "description": "Ana Oyun",
+          "pkg": "https://download.akirabox.com/uploads/users/1k0embVVmVb4/coOgp067kWGwfCZMZde-BASE%20-%20CUSA11518%20-%20%5BDLPSGAME.COM%5D.pkg?access=1792200496513.SbVq0zFNdi2X3m5g6AT1VI1DpV7T7Kp6j5KA5Rd266w"
         }
       ]
     }
