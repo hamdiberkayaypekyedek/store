@@ -8,6 +8,8 @@ namespace installer {
 struct Outcome {
     bool ok = false;
     std::string message;
+    int taskId = -1;    // ilerleme takibi icin (RPI gorev kimligi; BGFT gorev no)
+    int method = 0;     // 0 = BGFT, 1 = Remote Package Installer
 };
 
 // mode: "auto" (once BGFT, olmazsa Remote Package Installer), "bgft" veya "rpi"

@@ -158,6 +158,8 @@ Outcome viaBgft(const catalog::Item& it, int userId, bool& tryFallback) {
     }
     tryFallback = false;
     o.ok = true;
+    o.taskId = task;
+    o.method = 0;
     o.message = "Indirme basladi. Bildirimler > Indirmeler'den takip edebilirsin.";
     return o;
 }
@@ -179,6 +181,8 @@ Outcome viaRpi(const catalog::Item& it) {
     }
     if (j["status"].str() == "success") {
         o.ok = true;
+        o.method = 1;
+        o.taskId = (int)j["task_id"].num(-1);
         o.message = "Remote Package Installer indirmeyi kuyruga ekledi.";
     } else {
         o.message = "RPI hatasi: " + j["error"].str(r.body.substr(0, 120));

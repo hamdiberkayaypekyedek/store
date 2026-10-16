@@ -15,6 +15,7 @@
 
 #include "catalog.h"
 #include "disc.h"
+#include "downloads.h"
 #include "gfx.h"
 #include "http.h"
 #include "https.h"
@@ -208,15 +209,20 @@ std::string initials(const std::string& t) {
     return out;
 }
 
+const char* kDownloadsTab = "\xC4\xB0ndirilenler";
 const char* kDiscTab = "Disk Kopyalama";
 
-// Son sekme her zaman Disk Kopyalama; katalog yuklenemese de acilabilir.
-bool onDiscTab() { return g.catIdx >= (int)g.cat.categories.size(); }
-int tabCount() { return (int)g.cat.categories.size() + 1; }
+// Katalog kategorilerinden sonra iki sanal sekme: Indirilenler, Disk Kopyalama.
+// (Katalog yuklenemese de bu sekmeler acilabilir.)
+int catCount() { return (int)g.cat.categories.size(); }
+bool onDownloadsTab() { return g.catIdx == catCount(); }
+bool onDiscTab() { return g.catIdx == catCount() + 1; }
+bool onVirtualTab() { return g.catIdx >= catCount(); }
+int tabCount() { return catCount() + 2; }
 
 std::vector<catalog::Item>& currentItems() {
     static std::vector<catalog::Item> none;
-    return onDiscTab() ? none : g.cat.categories[g.catIdx].items;
+    return onVirtualTab() ? none : g.cat.categories[g.catIdx].items;
 }
 
 const catalog::Item* currentItem() {
@@ -420,6 +426,68 @@ void renderDiscPanel() {
     gfx::text("Kopyalama bir sonraki ad\xC4\xB1mda eklenecek.", x, y + bh + 18, 22, C::text3);
 }
 
+void renderDownloadsPanel() {
+    auto list = downloads::list();
+    const int x = kGridX;
+    const int w = SW - 2 * kGridX;
+    int y = kGridTop;
+
+    if (list.empty()) {
+        gfx::text("Hen\xC3\xBCz indirme yok", x, y + 40, 40, C::white, true);
+        gfx::wrapText("Bir i\xC3\xA7" "erik se\xC3\xA7ip \xC4\xB0ndir'e bast\xC4\xB1\xC4\x9F\xC4\xB1nda burada g\xC3\xB6r\xC3\xBCn\xC3\xBCr. "
+                      "\xC4\xB0lerleme PS4 ana ekran\xC4\xB1nda ve Bildirimler'de de g\xC3\xB6r\xC3\xBCn\xC3\xBCr.",
+                      x, y + 100, 28, 1200, 42, 3, C::text2);
+        return;
+    }
+
+    const int rowH = 132;
+    int visible = std::min((int)list.size(), (kHintY - 20 - y) / rowH);
+    for (int i = 0; i < visible; i++) {
+        const auto& e = list[i];
+        int ry = y + i * rowH;
+        gfx::fillRoundRect(x, ry, w, rowH - 18, 10, Color{255, 255, 255, 22});
+
+        // Kapak
+        int cw = 0, ch = 0;
+        SDL_Texture* t = e.cover.empty() ? nullptr : images::get(e.cover, &cw, &ch);
+        const int ts = rowH - 46;
+        if (t) gfx::drawImageCover(t, cw, ch, x + 16, ry + 15, ts, ts);
+        else gfx::fillRoundRect(x + 16, ry + 15, ts, ts, 6, Color{40, 60, 110, 255});
+
+        const int tx = x + 16 + ts + 24;
+        const int tw = w - (tx - x) - 40;
+        gfx::text(e.title, tx, ry + 16, 32, C::white, true, tw);
+
+        const char* methodTxt = e.method == 1 ? "Remote Package Installer" : "Sistem indirmesi (BGFT)";
+        std::string sub = methodTxt;
+        if (e.size) sub += "   \xC2\xB7   " + catalog::formatSize(e.size);
+        gfx::text(sub, tx, ry + 54, 22, C::text3, false, tw);
+
+        // Durum / ilerleme
+        int by = ry + 88, bh = 18;
+        if (e.percent >= 0) {
+            gfx::fillRoundRect(tx, by, tw, bh, bh / 2, Color{255, 255, 255, 30});
+            int fw = (int)(tw * (e.percent / 100.0f));
+            Color bar = e.state == downloads::Done ? C::ok : C::accent;
+            if (fw > 0) gfx::fillRoundRect(tx, by, std::max(fw, bh), bh, bh / 2, bar);
+            std::string pct = std::to_string(e.percent) + "%";
+            gfx::text(e.state == downloads::Done ? "Tamamland\xC4\xB1" : pct, tx + tw, by - 4, 24,
+                      e.state == downloads::Done ? C::ok : C::white, true, 0, gfx::Align::Right);
+        } else {
+            // Belirsiz: hareketli kayan parca
+            gfx::fillRoundRect(tx, by, tw, bh, bh / 2, Color{255, 255, 255, 30});
+            float p = (SDL_GetTicks() % 1400) / 1400.0f;
+            int seg = tw / 4;
+            int sx = (int)((tw + seg) * p) - seg;
+            int a = std::max(tx, tx + sx), b = std::min(tx + tw, tx + sx + seg);
+            if (b > a) gfx::fillRoundRect(a, by, b - a, bh, bh / 2, withAlpha(C::accent, 200));
+            gfx::text(e.note.empty() ? "\xC4\xB0ndiriliyor\xE2\x80\xA6" : e.note, tx, by + 28, 22, C::text3, false, tw);
+        }
+    }
+    if ((int)list.size() > visible)
+        gfx::text("+" + std::to_string((int)list.size() - visible) + " daha", x, y + visible * rowH, 24, C::text3);
+}
+
 void renderBrowse() {
     auto& cats = g.cat.categories;
     auto& items = currentItems();
@@ -433,14 +501,18 @@ void renderBrowse() {
     if (onDiscTab()) {
         disc::Info d = disc::snapshot();
         count = !d.scanned ? "" : d.present ? "Disk tak\xC4\xB1l\xC4\xB1" : "Disk yok";
+    } else if (onDownloadsTab()) {
+        int a = downloads::activeCount();
+        count = a > 0 ? std::to_string(a) + " etkin" : "";
     } else {
         count = std::to_string(n) + " i\xC3\xA7" "erik";
     }
     gfx::text(count, SW - kGridX, 54, 26, C::text2, false, 0, gfx::Align::Right);
 
-    // Sekmeler: katalog kategorileri + Disk Kopyalama (secili sekme gorunur kalacak sekilde kaydirilir)
+    // Sekmeler: kategoriler + Indirilenler + Disk Kopyalama (secili sekme gorunur kalir)
     std::vector<std::string> names;
     for (auto& c : cats) names.push_back(c.name);
+    names.push_back(kDownloadsTab);
     names.push_back(kDiscTab);
     std::vector<int> widths;
     int total = 0, selEnd = 0;
@@ -462,6 +534,11 @@ void renderBrowse() {
     if (onDiscTab()) {
         renderDiscPanel();
         drawHints({{HCross, "Kopyala"}, {HL1R1, "Kategori"}});
+        return;
+    }
+    if (onDownloadsTab()) {
+        renderDownloadsPanel();
+        drawHints({{HL1R1, "Sekme"}});
         return;
     }
 
@@ -707,8 +784,12 @@ void doInstall(const catalog::Item& it) {
     render();
     installer::Outcome o = installer::install(it, g.userId, g.cfg.installer);
     g.busy = false;
-    if (o.ok) showToast("\xC4\xB0ndirme kuyru\xC4\x9F" "a eklendi", o.message, C::ok, 5000);
-    else showToast("Kurulum ba\xC5\x9Flat\xC4\xB1lamad\xC4\xB1", o.message, C::err, 9000);
+    if (o.ok) {
+        downloads::add(it.title, it.cover, it.size, o.method, o.taskId);
+        showToast("\xC4\xB0ndirme kuyru\xC4\x9F" "a eklendi", o.message + "  (\xC4\xB0ndirilenler sekmesinde)", C::ok, 5000);
+    } else {
+        showToast("Kurulum ba\xC5\x9Flat\xC4\xB1lamad\xC4\xB1", o.message, C::err, 9000);
+    }
 }
 
 void doUpdate() {
@@ -753,6 +834,7 @@ void update() {
                 showToast("Hen\xC3\xBCz haz\xC4\xB1r de\xC4\x9Fil", "Bu s\xC3\xBCr\xC3\xBCm sadece disk bilgisini okuyor; kopyalama sonraki ad\xC4\xB1mda.", C::accent, 4000);
             return;
         }
+        if (onDownloadsTab()) return;  // sadece L1/R1 ile gezilir
         const int n = (int)currentItems().size();
         if (n == 0) return;
         if (P.hit(ORBIS_PAD_BUTTON_LEFT) && g.sel % kCols > 0) g.sel--;
@@ -833,6 +915,7 @@ int main() {
         }
         update();
         disc::setActive(g.screen == Screen::Browse && onDiscTab() && !g.showUpdate);
+        downloads::poll();
         images::pump();
         render();
         uint32_t spent = SDL_GetTicks() - frameStart;
