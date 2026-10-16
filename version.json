@@ -1,7 +1,7 @@
 {
-  "version": "01.06",
+  "version": "01.07",
   "title": "PKG Mağaza",
   "size": 6750208,
-  "pkg": "https://github.com/hamdiberkayaypekyedek/store/releases/download/v01.06/PKGMagaza.pkg",
-  "notes": "- PS4/OpenOrbis SDL görüntü sunumu düzeltildi: yazılım renderer ve pencere yüzeyi yenilemesi kullanılıyor.\n- Remote Play geçişlerinde görünen siyah bantlar ve geçici eksik çizim giderildi."
+  "pkg": "https://github.com/hamdiberkayaypekyedek/store/releases/download/v01.07/PKGMagaza.pkg",
+  "notes": "- 01.06 görüntü sunumu değişikliği geri alındı; ana mağaza ekranının yüklenmede kalmasına neden oluyordu.\n- Önceki, çalışan SDL renderer yolu geri getirildi."
 }
