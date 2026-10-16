@@ -118,6 +118,7 @@ struct Pad {
 };
 
 struct State {
+    SDL_Window* window = nullptr;
     SDL_Renderer* r = nullptr;
     SDL_Texture* bg = nullptr;
     Config cfg;
@@ -752,7 +753,7 @@ void render() {
     if (g.showUpdate) renderUpdate();
     if (g.busy) renderBusy();
     drawToast();
-    SDL_RenderPresent(g.r);
+    SDL_UpdateWindowSurface(g.window);
 }
 
 // ---------------------------------------------------------------- eylemler
@@ -876,9 +877,10 @@ int main() {
         applog("SDL_Init hatasi: %s", SDL_GetError());
         for (;;) sceKernelUsleep(1000000);
     }
-    SDL_Window* win = SDL_CreateWindow("PKG Magaza", 0, 0, SW, SH, 0);
-    g.r = SDL_CreateRenderer(win, -1, 0);
-    if (!win || !g.r) {
+    g.window = SDL_CreateWindow("PKG Magaza", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SW, SH, 0);
+    SDL_Surface* surface = g.window ? SDL_GetWindowSurface(g.window) : nullptr;
+    g.r = surface ? SDL_CreateSoftwareRenderer(surface) : nullptr;
+    if (!g.window || !surface || !g.r) {
         applog("pencere/renderer hatasi: %s", SDL_GetError());
         for (;;) sceKernelUsleep(1000000);
     }

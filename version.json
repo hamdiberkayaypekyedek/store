@@ -1,7 +1,7 @@
 {
-  "version": "01.05",
+  "version": "01.06",
   "title": "PKG Mağaza",
   "size": 6750208,
-  "pkg": "https://github.com/hamdiberkayaypekyedek/store/releases/download/v01.05/PKGMagaza.pkg",
-  "notes": "- Açılışta 'veri bozuk' çökmesi düzeltildi: çalışma-zamanı sistem modülleri (libc.prx, libSceFios2.prx) pkg'ye eklendi; bunlar olmadan uygulama main()'e ulaşmadan çöküyordu.\n- Ağ başlatma ve HTTPS eşzamanlılık düzeltmeleri (01.04)."
+  "pkg": "https://github.com/hamdiberkayaypekyedek/store/releases/download/v01.06/PKGMagaza.pkg",
+  "notes": "- PS4/OpenOrbis SDL görüntü sunumu düzeltildi: yazılım renderer ve pencere yüzeyi yenilemesi kullanılıyor.\n- Remote Play geçişlerinde görünen siyah bantlar ve geçici eksik çizim giderildi."
 }
