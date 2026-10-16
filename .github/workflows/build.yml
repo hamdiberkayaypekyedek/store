@@ -1,0 +1,73 @@
+name: pkg derle
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Araçlar
+        run: sudo apt-get update && sudo apt-get install -y clang lld make jq curl fonts-dejavu-core fonts-dejavu-extra
+
+      - name: OpenOrbis toolchain
+        run: |
+          set -e
+          url=$(curl -fsSL https://api.github.com/repos/OpenOrbis/OpenOrbis-PS4-Toolchain/releases/latest \
+                | jq -r '.assets[].browser_download_url' \
+                | grep -iE 'linux|gnu|\.tar\.gz$' | head -1)
+          echo "Toolchain: $url"
+          mkdir -p "$HOME/oo"
+          curl -fsSL "$url" -o /tmp/oo.tar.gz
+          tar -xzf /tmp/oo.tar.gz -C "$HOME/oo"
+          # link.x dosyasini barindiran klasor toolchain kokudur
+          root=$(dirname "$(find "$HOME/oo" -name link.x | head -1)")
+          echo "OO_PS4_TOOLCHAIN=$root" >> "$GITHUB_ENV"
+          echo "Toolchain koku: $root"
+          ls "$root"
+
+      - name: Bağımlılıklar (stb, font, right.sprx)
+        run: |
+          set -e
+          mkdir -p include assets sce_sys/about
+          curl -fsSL https://raw.githubusercontent.com/nothings/stb/master/stb_image.h -o include/stb_image.h
+          curl -fsSL https://raw.githubusercontent.com/nothings/stb/master/stb_truetype.h -o include/stb_truetype.h
+          # Font: DejaVu (Türkçe karakterleri kapsar). Bold yoksa normali kullan.
+          cp /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf assets/font.ttf
+          if [ -f /usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf ]; then
+            cp /usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf assets/font-bold.ttf
+          else
+            cp assets/font.ttf assets/font-bold.ttf
+          fi
+          sprx=$(find "$OO_PS4_TOOLCHAIN" -name right.sprx | head -1 || true)
+          if [ -n "$sprx" ]; then cp "$sprx" sce_sys/about/right.sprx; echo "right.sprx: $sprx"; else echo "UYARI: right.sprx bulunamadi"; fi
+
+      - name: Derle
+        run: make
+
+      - name: pkg'yi artifact olarak yükle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PKGMagaza-pkg
+          path: "*.pkg"
+          if-no-files-found: warn
+
+      - name: Etiketliyse release oluştur
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          pkg=$(ls *.pkg | head -1)
+          gh release create "$GITHUB_REF_NAME" "$pkg#PKGMagaza.pkg" \
+            --title "PKG Mağaza $GITHUB_REF_NAME" --notes "Otomatik derleme" \
+            || gh release upload "$GITHUB_REF_NAME" "$pkg#PKGMagaza.pkg" --clobber
