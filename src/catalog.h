@@ -5,10 +5,18 @@
 
 namespace catalog {
 
+// Ana pkg'nin yaninda indirilebilen ek paket (guncelleme ya da DLC).
+struct Extra {
+    std::string title, pkg, packageType;  // pkg adresi katalog konumuna gore cozulmus
+    uint64_t size = 0;
+};
+
 struct Item {
     std::string id, title, publisher, version, description;
     std::string cover, background, pkg, packageType;  // adresler katalog konumuna gore cozulmus halde
     uint64_t size = 0;
+    std::vector<Extra> updates;  // guncelleme pkg'leri
+    std::vector<Extra> dlcs;     // DLC pkg'leri
 };
 
 struct Category {

@@ -12,6 +12,20 @@ bool hasScheme(const std::string& s) {
     return s.compare(0, 7, "http://") == 0 || s.compare(0, 8, "https://") == 0;
 }
 
+void parseExtras(const JVal& arr, const std::string& base, const char* defType, std::vector<Extra>& out) {
+    for (size_t i = 0; i < arr.size(); i++) {
+        const JVal& e = arr.at(i);
+        Extra x;
+        x.pkg = resolve(base, e["pkg"].str());
+        if (x.pkg.empty()) continue;
+        x.title = e["title"].str();
+        x.packageType = e["package_type"].str(defType);
+        double sz = e["size"].num(0);
+        x.size = sz > 0 ? (uint64_t)sz : 0;
+        out.push_back(std::move(x));
+    }
+}
+
 Item parseItem(const JVal& j, const std::string& base) {
     Item it;
     it.id = j["id"].str();
@@ -25,6 +39,8 @@ Item parseItem(const JVal& j, const std::string& base) {
     it.packageType = j["package_type"].str();
     double sz = j["size"].num(0);
     it.size = sz > 0 ? (uint64_t)sz : 0;
+    parseExtras(j["updates"], base, "PS4DP", it.updates);
+    parseExtras(j["dlcs"], base, "PS4AC", it.dlcs);
     return it;
 }
 

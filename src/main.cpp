@@ -125,6 +125,7 @@ struct State {
     Screen screen = Screen::Loading;
     int catIdx = 0;
     int sel = 0;
+    int detailSel = 0;  // detay ekranindaki secili kurulum (ana/guncelleme/dlc)
     float scroll = 0;
     int userId = -1;
     Pad pad;
@@ -491,6 +492,46 @@ void renderBrowse() {
     drawHints({{HCross, "G\xC3\xB6r\xC3\xBCnt\xC3\xBCle"}, {HL1R1, "Kategori"}, {HOptions, "Yenile"}});
 }
 
+// Detay ekranindaki indirilebilir ogeler: ana pkg + guncellemeler + DLC'ler.
+struct InstallEntry {
+    std::string line;       // dugmede gorunecek metin
+    catalog::Item item;     // kurulacak pkg (installer::install icin)
+};
+
+std::vector<InstallEntry> detailEntries(const catalog::Item& it) {
+    std::vector<InstallEntry> v;
+    auto make = [](const std::string& title, const std::string& pkg, uint64_t size,
+                   const std::string& type) {
+        catalog::Item e;
+        e.title = title;
+        e.pkg = pkg;
+        e.size = size;
+        e.packageType = type;
+        return e;
+    };
+    std::string sz = catalog::formatSize(it.size);
+    v.push_back({std::string("Ana oyun / uygulama") + (sz.empty() ? "" : "   \xC2\xB7   " + sz),
+                 make(it.title, it.pkg, it.size, it.packageType.empty() ? "PS4GD" : it.packageType)});
+    int n = 1;
+    for (auto& u : it.updates) {
+        std::string label = "G\xC3\xBCncelleme" + std::string(u.title.empty() ? "" : "  \xC2\xB7  " + u.title);
+        std::string s = catalog::formatSize(u.size);
+        if (!s.empty()) label += "   \xC2\xB7   " + s;
+        v.push_back({label, make(it.title + " (g\xC3\xBCncelleme " + std::to_string(n++) + ")", u.pkg, u.size,
+                                 u.packageType.empty() ? "PS4DP" : u.packageType)});
+    }
+    n = 1;
+    for (auto& d : it.dlcs) {
+        std::string label = "DLC" + std::string(d.title.empty() ? "" : "  \xC2\xB7  " + d.title);
+        std::string s = catalog::formatSize(d.size);
+        if (!s.empty()) label += "   \xC2\xB7   " + s;
+        v.push_back({label, make(d.title.empty() ? it.title + " DLC " + std::to_string(n) : d.title, d.pkg,
+                                 d.size, d.packageType.empty() ? "PS4AC" : d.packageType)});
+        n++;
+    }
+    return v;
+}
+
 void renderDetail() {
     const catalog::Item* itp = currentItem();
     if (!itp) return;
@@ -504,40 +545,64 @@ void renderDetail() {
     drawCoverArt(it, cx, cy, cs);
 
     const int x = cx + cs + 90, maxW = SW - x - 120;
-    gfx::text(it.title, x, cy - 8, 64, C::white, true, maxW);
-    int y = cy + 92;
+    gfx::text(it.title, x, cy - 8, 60, C::white, true, maxW);
+    int y = cy + 84;
     if (!it.publisher.empty()) {
-        gfx::text(it.publisher, x, y, 30, C::text2, false, maxW);
-        y += 58;
+        gfx::text(it.publisher, x, y, 28, C::text2, false, maxW);
+        y += 46;
     }
 
     int chx = x;
     auto chip = [&](const std::string& s) {
         if (s.empty()) return;
         int w = gfx::textWidth(s, 24) + 36;
-        gfx::fillRoundRect(chx, y, w, 44, 22, Color{255, 255, 255, 40});
-        gfx::text(s, chx + 18, y + 6, 24, C::white);
+        gfx::fillRoundRect(chx, y, w, 42, 21, Color{255, 255, 255, 40});
+        gfx::text(s, chx + 18, y + 5, 24, C::white);
         chx += w + 14;
     };
     chip(it.version.empty() ? "" : "S\xC3\xBCr\xC3\xBCm " + it.version);
-    chip(catalog::formatSize(it.size));
     chip(it.id);
-    y += 84;
+    y += 72;
 
-    // Ana dugme (odakli: beyaz cerceve, hafif nabiz)
-    const int bw = 460, bh = 86;
+    // Kisa aciklama (2 satir)
+    if (!it.description.empty()) {
+        y += gfx::wrapText(it.description, x, y, 26, maxW, 38, 2, C::text2);
+        y += 18;
+    }
+
+    // Kurulum listesi: ana + guncellemeler + DLC
+    auto entries = detailEntries(it);
+    int sel = std::min(g.detailSel, (int)entries.size() - 1);
+    gfx::text(entries.size() > 1 ? "KURULACAKLAR" : "KURULUM", x, y, 22, C::text3, true);
+    y += 40;
+
+    const int bw = maxW, bh = 74, gap = 14;
+    int avail = kHintY - 30 - y;
+    int visible = std::max(1, avail / (bh + gap));
+    int first = 0;
+    if ((int)entries.size() > visible) {
+        first = std::min(std::max(0, sel - visible / 2), (int)entries.size() - visible);
+    }
     float pulse = 0.5f + 0.5f * std::sin(SDL_GetTicks() / 260.0f);
-    gfx::fillRoundRect(x - 6, y - 6, bw + 12, bh + 12, 14, withAlpha(C::white, (uint8_t)(170 + 85 * pulse)));
-    gfx::fillRoundRect(x, y, bw, bh, 10, C::accent);
-    gfx::text("\xC4\xB0ndir", x + bw / 2, y + bh / 2 - 25, 38, C::white, true, 0, gfx::Align::Center);
-    y += bh + 34;
+    for (int i = first; i < (int)entries.size() && i < first + visible; i++) {
+        bool on = i == sel;
+        int by = y;
+        if (on) {
+            gfx::fillRoundRect(x - 5, by - 5, bw + 10, bh + 10, 12,
+                               withAlpha(C::white, (uint8_t)(150 + 80 * pulse)));
+            gfx::fillRoundRect(x, by, bw, bh, 9, C::accent);
+            gfx::text(entries[i].line, x + 26, by + bh / 2 - 17, 30, C::white, true, bw - 52);
+        } else {
+            gfx::fillRoundRect(x, by, bw, bh, 9, Color{255, 255, 255, 28});
+            gfx::text(entries[i].line, x + 26, by + bh / 2 - 16, 28, C::text2, false, bw - 52);
+        }
+        y += bh + gap;
+    }
+    if ((int)entries.size() > visible)
+        gfx::text(std::to_string(sel + 1) + " / " + std::to_string(entries.size()), x + bw, y - gap + 2, 22,
+                  C::text3, false, 0, gfx::Align::Right);
 
-    gfx::text("Kaynak: " + catalog::hostOf(it.pkg), x, y, 22, C::text3, false, maxW);
-    y += 62;
-    gfx::wrapText(it.description.empty() ? "A\xC3\xA7\xC4\xB1klama yok." : it.description, x, y, 28, maxW, 42, 8,
-                  C::text2);
-
-    drawHints({{HCross, "\xC4\xB0ndir"}, {HCircle, "Geri"}});
+    drawHints({{HCross, "\xC4\xB0ndir / kur"}, {HCircle, "Geri"}});
 }
 
 void renderLoading() {
@@ -697,10 +762,18 @@ void update() {
             if (g.sel + kCols < n) g.sel += kCols;
             else if (g.sel / kCols < (n - 1) / kCols) g.sel = n - 1;
         }
-        if (P.hit(ORBIS_PAD_BUTTON_CROSS)) g.screen = Screen::Detail;
+        if (P.hit(ORBIS_PAD_BUTTON_CROSS)) { g.screen = Screen::Detail; g.detailSel = 0; }
     } else if (g.screen == Screen::Detail) {
-        if (P.hit(ORBIS_PAD_BUTTON_CIRCLE)) g.screen = Screen::Browse;
-        else if (P.hit(ORBIS_PAD_BUTTON_CROSS) && currentItem()) doInstall(*currentItem());
+        const catalog::Item* it = currentItem();
+        if (P.hit(ORBIS_PAD_BUTTON_CIRCLE) || !it) {
+            g.screen = Screen::Browse;
+        } else {
+            auto entries = detailEntries(*it);
+            int n = (int)entries.size();
+            if (P.hit(ORBIS_PAD_BUTTON_UP) && g.detailSel > 0) g.detailSel--;
+            if (P.hit(ORBIS_PAD_BUTTON_DOWN) && g.detailSel + 1 < n) g.detailSel++;
+            if (P.hit(ORBIS_PAD_BUTTON_CROSS)) doInstall(entries[std::min(g.detailSel, n - 1)].item);
+        }
     }
 }
 
