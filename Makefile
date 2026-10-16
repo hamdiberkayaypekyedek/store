@@ -15,10 +15,10 @@ LIBS        := -lc -lkernel -lc++ -lSDL2 -lSceVideoOut -lSceAudioOut -lScePad \
 
 ODIR        := build
 SDIR        := src
-# _LIBCPP_HAS_NO_THREADS: OpenOrbis libc++'inda <atomic>/<thread> nanosleep arar;
-# gercek es zamanlamayi pthread ile yaptigimiz icin bu tanim guvenli.
+# -include oo_compat.h: standart basliklardan once nanosleep'i bildirir
+# (OpenOrbis libc++ <atomic> bunu arar).
 EXTRAFLAGS  := -Iinclude -O2 -Wall -Wno-unused-function -MMD -MP \
-               -DAPP_VERSION='"$(VERSION)"' -D_LIBCPP_HAS_NO_THREADS
+               -DAPP_VERSION='"$(VERSION)"' -include include/oo_compat.h
 
 # GoldHEN Plugins SDK: korumali alandan cikis (disk okuma icin gerekli).
 #   make GOLDHEN_SDK=/opt/GoldHEN_Plugins_SDK
