@@ -1,20 +1,47 @@
 #include "https.h"
 
-#include <orbis/Http.h>
-#include <orbis/Net.h>
-#include <orbis/Ssl.h>
-#include <orbis/Sysmodule.h>
-#include <orbis/libkernel.h>
-
 #include <cstdint>
+#include <cstdio>
+#include <cstring>
 #include <vector>
 
 #include "log.h"
 
-// NOT: sceHttp/sceSsl imzalari OpenOrbis surumune gore degisebilir. Derleme
-// hatasi olursa toolchain'in orbis/Http.h basligindaki prototiplerle karsilastirin;
-// akis (sysmodule -> ssl init -> http init -> template -> connection -> request)
-// aynidir.
+// OpenOrbis'teki orbis/Http.h eksik (fonksiyonlar parametresiz bildirilmis,
+// ORBIS_SYSMODULE_NET/SSL/HTTP yok). Bu yuzden gerekli libSceHttp/Ssl/Net/Sysmodule
+// fonksiyonlarini dogru imzalariyla burada kendimiz bildiriyoruz. Baglama NID ile
+// yapildigi icin -lSceHttp dogru sembole cozer; calisma zamaninda konsoldaki gercek
+// modul cagrilir.
+//
+// NOT: Asagidaki sysmodule kimlikleri (NET/SSL/HTTP) toolchain surumune gore
+// farkli olabilir. Yanlis olurlarsa modul yuklenmez ve guncelleme kontrolu sessizce
+// atlanir (uygulama yine calisir). Cihazdaki log.txt'de "https init" satirina bakip
+// gerekirse buradaki degerleri duzeltecegiz.
+extern "C" {
+int sceSysmoduleLoadModule(uint16_t id);
+int sceNetPoolCreate(const char* name, int size, int flags);
+int sceSslInit(uint64_t poolSize);
+int sceHttpInit(int netMemId, int sslCtxId, uint64_t poolSize);
+int sceHttpCreateTemplate(int httpCtxId, const char* userAgent, int httpVer, int autoProxyConf);
+int sceHttpCreateConnectionWithURL(int tmplId, const char* url, int enableKeepalive);
+int sceHttpCreateRequestWithURL(int connId, int method, const char* url, uint64_t contentLength);
+int sceHttpSendRequest(int reqId, const void* postData, uint64_t size);
+int sceHttpGetStatusCode(int reqId, int* statusCode);
+int sceHttpGetAllResponseHeaders(int reqId, char** header, uint64_t* headerSize);
+int sceHttpReadData(int reqId, void* data, uint64_t size);
+int sceHttpSetConnectTimeOut(int id, uint32_t usec);
+int sceHttpSetRecvTimeOut(int id, uint32_t usec);
+int sceHttpSetAutoRedirect(int id, int enable);
+int sceHttpDeleteRequest(int reqId);
+int sceHttpDeleteConnection(int connId);
+int sceHttpDeleteTemplate(int tmplId);
+}
+
+static const uint16_t ORBIS_SYSMODULE_NET = 0x0009;
+static const uint16_t ORBIS_SYSMODULE_HTTP = 0x000A;
+static const uint16_t ORBIS_SYSMODULE_SSL = 0x000B;
+static const int ORBIS_HTTP_VERSION_1_1 = 2;
+static const int ORBIS_METHOD_GET = 0;
 
 namespace https {
 namespace {
