@@ -1,7 +1,7 @@
 {
-  "version": "01.07",
+  "version": "01.08",
   "title": "PKG Mağaza",
   "size": 6750208,
-  "pkg": "https://github.com/hamdiberkayaypekyedek/store/releases/download/v01.07/PKGMagaza.pkg",
-  "notes": "- 01.06 görüntü sunumu değişikliği geri alındı; ana mağaza ekranının yüklenmede kalmasına neden oluyordu.\n- Önceki, çalışan SDL renderer yolu geri getirildi."
+  "pkg": "https://github.com/hamdiberkayaypekyedek/store/releases/download/v01.08/PKGMagaza.pkg",
+  "notes": "- Her kare öncesinde SDL kırpma ve alfa-karışım durumu sıfırlanır.\n- Remote Play geçişlerinde kalan mavi katman/önceki kare izleri hedeflenir."
 }

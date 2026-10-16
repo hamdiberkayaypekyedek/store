@@ -741,8 +741,11 @@ void renderUpdate() {
 }
 
 void render() {
+    SDL_RenderSetClipRect(g.r, nullptr);
+    SDL_SetRenderDrawBlendMode(g.r, SDL_BLENDMODE_NONE);
     SDL_SetRenderDrawColor(g.r, 0, 0, 0, 255);
     SDL_RenderClear(g.r);
+    SDL_SetRenderDrawBlendMode(g.r, SDL_BLENDMODE_BLEND);
     switch (g.screen) {
         case Screen::Loading: renderLoading(); break;
         case Screen::Error: renderError(); break;
