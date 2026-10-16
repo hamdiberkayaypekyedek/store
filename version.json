@@ -1,7 +1,7 @@
 {
-  "version": "01.02",
+  "version": "01.03",
   "title": "PKG Mağaza",
   "size": 6684672,
-  "pkg": "https://github.com/hamdiberkayaypekyedek/store/releases/download/v01.02/PKGMagaza.pkg",
-  "notes": "- İndirilenler sekmesi eklendi: başlattığın indirmeler listelenir.\n- Remote Package Installer ile giden indirmelerde ilerleme çubuğu; sistem indirmeleri PS4 ana ekranında/Bildirimler'de görünür.\n- İçeriklere güncelleme ve DLC pkg'leri eklenebiliyor."
+  "pkg": "https://github.com/hamdiberkayaypekyedek/store/releases/download/v01.03/PKGMagaza.pkg",
+  "notes": "- Katalog artık GitHub'dan (HTTPS) okunuyor; catalog.json'u düzenlemen yeterli, yeni pkg gerekmez.\n- Kapak görselleri de HTTPS adreslerinden yüklenebiliyor.\n- Varsayılan katalog adresi depodaki catalog.json."
 }
