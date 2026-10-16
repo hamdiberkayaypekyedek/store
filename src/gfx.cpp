@@ -11,7 +11,7 @@
 #include <utility>
 #include <vector>
 
-#include "http.h"
+#include "fetch.h"
 #include "log.h"
 #include "stb_image.h"
 #include "stb_truetype.h"
@@ -400,7 +400,7 @@ void* worker(void*) {
         g_jobs.pop_back();
         pthread_mutex_unlock(&g_mx);
 
-        http::Result r = http::request("GET", url);
+        netfetch::Result r = netfetch::get(url);
         unsigned char* px = nullptr;
         int w = 0, h = 0, n = 0;
         if (r.error.empty() && r.status == 200 && !r.body.empty())

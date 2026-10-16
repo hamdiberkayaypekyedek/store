@@ -2,7 +2,7 @@
 
 #include <cstdio>
 
-#include "http.h"
+#include "fetch.h"
 #include "json.h"
 
 namespace catalog {
@@ -71,7 +71,7 @@ std::string resolve(const std::string& base, const std::string& ref) {
 }
 
 bool load(const std::string& source, Catalog& out, std::string& err) {
-    http::Result r = http::request("GET", source);
+    netfetch::Result r = netfetch::get(source);
     if (!r.error.empty()) { err = r.error; return false; }
     if (r.status != 200) { err = "Sunucu HTTP " + std::to_string(r.status) + " dondu: " + source; return false; }
 

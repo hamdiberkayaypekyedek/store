@@ -152,13 +152,13 @@ Config loadConfig() {
     sceKernelMkdir(kDataDir, 0777);
     FILE* f = fopen(kConfigPath, "r");
     if (!f) {
-        c.catalogUrl = "http://192.168.1.10:8000/catalog.json";
+        c.catalogUrl = "https://raw.githubusercontent.com/hamdiberkayaypekyedek/store/main/catalog.json";
         f = fopen(kConfigPath, "w");
         if (f) {
             fputs("# PKG Magaza ayarlari\n"
-                  "# Katalog adresi (PC'de: python tools/serve.py <klasor>). Bos birakilirsa\n"
-                  "# /data/pkgstore/catalog.json kullanilir.\n"
-                  "catalog_url=http://192.168.1.10:8000/catalog.json\n"
+                  "# Katalog adresi. GitHub (https) ya da PC sunucusu (http) olabilir.\n"
+                  "# Bos birakilirsa /data/pkgstore/catalog.json kullanilir.\n"
+                  "catalog_url=https://raw.githubusercontent.com/hamdiberkayaypekyedek/store/main/catalog.json\n"
                   "# Kurulum yontemi: auto | bgft | rpi\n"
                   "installer=auto\n"
                   "# Uygulamanin kendi guncellemesi (GitHub version.json, https).\n"

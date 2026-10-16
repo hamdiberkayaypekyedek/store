@@ -1,0 +1,16 @@
+{
+  "store_name": "Mağazam",
+  "categories": [
+    {
+      "name": "Başlangıç",
+      "items": [
+        {
+          "title": "Buraya kendi içeriğini ekle",
+          "publisher": "",
+          "description": "Bu dosyayı GitHub'da düzenle: her içerik için title ve pkg (indirme adresi) yeterli. İstersen cover, updates ve dlcs ekle. Kaydettiğinde uygulamada OPTIONS'a basınca güncellenir.",
+          "pkg": "https://ornek.com/degistir.pkg"
+        }
+      ]
+    }
+  ]
+}
