@@ -1,7 +1,7 @@
 {
-  "version": "01.00",
+  "version": "01.01",
   "title": "PKG Mağaza",
-  "size": 9437184,
-  "pkg": "https://github.com/hamdiberkayaypekyedek/store/releases/download/v01.00/PKGMagaza.pkg",
-  "notes": "İlk sürüm."
+  "size": 6684672,
+  "pkg": "https://github.com/hamdiberkayaypekyedek/store/releases/download/v01.01/PKGMagaza.pkg",
+  "notes": "- İçeriklere güncelleme ve DLC pkg'leri eklenebiliyor.\n- Detay ekranında ana paket, güncellemeler ve DLC'ler liste halinde; yukarı/aşağı ile seçip ✕ ile kurulur."
 }
