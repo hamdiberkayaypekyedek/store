@@ -3,7 +3,7 @@
 
 TOOLCHAIN   ?= $(OO_PS4_TOOLCHAIN)
 TITLE       := PKG Magaza
-VERSION     := 01.04
+VERSION     := 01.05
 TITLE_ID    := PKGM00001
 CONTENT_ID  := IV0000-PKGM00001_00-PKGMAGAZA0000000
 
@@ -43,6 +43,9 @@ CPPFILES    := $(wildcard $(SDIR)/*.cpp)
 OBJS        := $(patsubst $(SDIR)/%.cpp,$(ODIR)/%.o,$(CPPFILES))
 ASSETS      := assets/font.ttf assets/font-bold.ttf
 SCE_SYS     := sce_sys/about/right.sprx sce_sys/param.sfo sce_sys/icon0.png sce_sys/pic1.png
+# Calisma-zamani sistem modulleri. Bunlar pkg'ye konmazsa uygulama main()'e
+# ulasmadan "veri bozuk" ile coker. CI bunlari toolchain'den sce_module/'e kopyalar.
+LIBMODULES  := $(wildcard sce_module/*.prx)
 
 .PHONY: all clean
 
@@ -51,7 +54,7 @@ all: $(CONTENT_ID).pkg
 $(CONTENT_ID).pkg: pkg.gp4
 	$(TOOLCHAIN)/bin/$(CDIR)/PkgTool.Core pkg_build $< .
 
-pkg.gp4: eboot.bin $(SCE_SYS) $(ASSETS)
+pkg.gp4: eboot.bin $(SCE_SYS) $(LIBMODULES) $(ASSETS)
 	$(TOOLCHAIN)/bin/$(CDIR)/create-gp4 -out $@ --content-id=$(CONTENT_ID) --files "$^"
 
 sce_sys/param.sfo: Makefile

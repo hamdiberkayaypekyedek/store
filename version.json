@@ -1,7 +1,7 @@
 {
-  "version": "01.04",
+  "version": "01.05",
   "title": "PKG Mağaza",
-  "size": 6684672,
-  "pkg": "https://github.com/hamdiberkayaypekyedek/store/releases/download/v01.04/PKGMagaza.pkg",
-  "notes": "- Açılışta çökme düzeltildi: ağ modülü (NET) başlatılmadan çağrılıyordu.\n- Ayarlar (config) ağdan önce yükleniyor; güncelleme adresi artık doğru okunuyor.\n- HTTPS istekleri seri hale getirildi (eşzamanlı çökme önlendi)."
+  "size": 6750208,
+  "pkg": "https://github.com/hamdiberkayaypekyedek/store/releases/download/v01.05/PKGMagaza.pkg",
+  "notes": "- Açılışta 'veri bozuk' çökmesi düzeltildi: çalışma-zamanı sistem modülleri (libc.prx, libSceFios2.prx) pkg'ye eklendi; bunlar olmadan uygulama main()'e ulaşmadan çöküyordu.\n- Ağ başlatma ve HTTPS eşzamanlılık düzeltmeleri (01.04)."
 }

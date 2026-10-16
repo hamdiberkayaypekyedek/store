@@ -56,6 +56,14 @@ jobs:
           fi
           sprx=$(find "$OO_PS4_TOOLCHAIN" -name right.sprx | head -1 || true)
           if [ -n "$sprx" ]; then cp "$sprx" sce_sys/about/right.sprx; echo "right.sprx: $sprx"; else echo "UYARI: right.sprx bulunamadi"; fi
+          # Calisma-zamani sistem modulleri: bunlar pkg'de olmazsa uygulama
+          # main()'e ulasmadan "veri bozuk" ile coker.
+          mkdir -p sce_module
+          for m in libc.prx libSceFios2.prx; do
+            p=$(find "$OO_PS4_TOOLCHAIN" -name "$m" | head -1 || true)
+            if [ -n "$p" ]; then cp "$p" "sce_module/$m"; echo "$m: $p"; else echo "HATA: $m bulunamadi"; fi
+          done
+          echo "sce_module icerigi:"; ls -l sce_module
 
       - name: Derle
         run: make
